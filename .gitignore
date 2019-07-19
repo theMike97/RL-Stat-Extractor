@@ -1,6 +1,9 @@
 .gradle
 /build/
 
+# Ignore Main.java for security - if ppl can't figure out how to run the code they are silly
+/src/main/java/Main.java
+
 # Ignore Gradle GUI config
 gradle-app.setting
 
