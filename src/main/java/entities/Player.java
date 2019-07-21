@@ -89,10 +89,6 @@ public class Player {
         return shots;
     }
 
-    public boolean isEmpty() {
-        return name != null;
-    }
-
     @Override
     public String toString() {
         return "[ Name: " + name + ", " +

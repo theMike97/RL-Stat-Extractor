@@ -26,6 +26,10 @@ public class Team {
         this.players = players;
     }
 
+    public void setTeamName(String name) {
+        this.name = name;
+    }
+
     public int getTeamSize() {
         return size;
     }

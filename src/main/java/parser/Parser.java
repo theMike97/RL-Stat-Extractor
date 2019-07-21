@@ -142,8 +142,8 @@ public class Parser {
                                 index++;
                                 streamedStr += (char) content[index];
 
-                                if (streamedStr.endsWith("ReplayName")) { // exit condition
-                                    System.out.println("here");
+                                if (streamedStr.endsWith("ReplayName") || streamedStr.endsWith("ReplayVersion")) { // exit condition
+//                                    System.out.println("here");
                                     player = null;
                                     playerStatsOver = true;
                                     break;
