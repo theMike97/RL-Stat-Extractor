@@ -15,9 +15,9 @@ public class Team {
         name = null;
         players = new Player[size];
         goals = 0;
-        assists = -1;
-        saves = -1;
-        shots = -1;
+        assists = 0;
+        saves = 0;
+        shots = 0;
     }
 
     public Team(String name, Player[] players) {
@@ -33,6 +33,7 @@ public class Team {
     public void addPlayer(Player player) {
         boolean playerAdded = false;
         int i = 0;
+//        System.out.println(players.length);
         while (i < players.length && !playerAdded) {
             if (players[i] == null) {
                 players[i] = player;

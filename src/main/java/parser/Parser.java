@@ -31,6 +31,7 @@ public class Parser {
             "Assists", // 10
             "Saves", // 11
             "Shots", // 12
+            "ReplayName" // 13
     };
     private static String[] DATA_TYPES = {
             "IntProperty",
@@ -124,16 +125,29 @@ public class Parser {
                         streamedStr = "";
 
                     } else if (lastEndedWith == 4) { //PlayerStats
+                        boolean playerStatsOver = false;
                         streamedStr = "";
                         int index = i;
                         int players = team0.getTeamSize() + team1.getTeamSize();
 //						System.out.println("Num of players: " + players);
 
-                        for (int n = 0; n < players; n++) {
+                        while (!playerStatsOver) { //marks the end of playerstats
+
                             Player player = new Player();
                             while (!streamedStr.endsWith("None")) { // do this teamsize * 2 times
+//                                System.out.println(streamedStr);
+//                                System.out.println(playerStatsOver);
+
+//                                streamedStr = "";
                                 index++;
                                 streamedStr += (char) content[index];
+
+                                if (streamedStr.endsWith("ReplayName")) { // exit condition
+                                    System.out.println("here");
+                                    player = null;
+                                    playerStatsOver = true;
+                                    break;
+                                }
 
                                 // look for keywords again
                                 for (int j = 0; j < KEYWORDS.length; j++) {
@@ -142,6 +156,8 @@ public class Parser {
                                         streamedStr = "";
                                     }
                                 }
+
+
 
                                 if (streamedStr.endsWith("StrProperty")) {
                                     Object[] arr = getStrProperty(index, content);
@@ -183,20 +199,28 @@ public class Parser {
                                             player.setShots(arr[0]);
 											System.out.println("Shots: " + arr[0]);
                                             break;
+
                                     }
 //									System.out.println("Byte: " + index);
                                     lastEndedWith = -1;
                                     streamedStr = "";
                                 }
                             }
+//                            playerStatsOver = streamedStr.endsWith("ReplayName");
+//                            playerStatsOver = streamedStr.endsWith("ReplayName");
+//                            System.out.println(playerStatsOver);
                             i = index;
                             index++;
                             streamedStr = "";
 
-                            if (player.getTeam() == 0) team0.addPlayer(player);
-                            else if (player.getTeam() == 1) team1.addPlayer(player);
-                            else throw new NullPointerException("Tried to add player to a team that doesn't exist!");
 
+                            if (player != null) {
+//                                System.out.println(player.getTeam());
+                                if (player.getTeam() == 0) team0.addPlayer(player);
+                                else if (player.getTeam() == 1) team1.addPlayer(player);
+                                else throw new NullPointerException("Tried to add player to a team that doesn't exist!");
+                            }
+                            System.out.println(playerStatsOver);
                             statsCollected = true;
 //							System.out.println(streamedStr);
                         }
@@ -210,9 +234,11 @@ public class Parser {
                             int teamShots = 0;
 
                             for (int z = 0; z < teamarr[y].getTeamSize(); z++) {
-                                teamAssists += teamarr[y].getPlayers()[z].getAssists();
-                                teamSaves += teamarr[y].getPlayers()[z].getSaves();
-                                teamShots += teamarr[y].getPlayers()[z].getShots();
+                                if (teamarr[y].getPlayers()[z] != null) {
+                                    teamAssists += teamarr[y].getPlayers()[z].getAssists();
+                                    teamSaves += teamarr[y].getPlayers()[z].getSaves();
+                                    teamShots += teamarr[y].getPlayers()[z].getShots();
+                                }
                             }
                             teamarr[y].setAssists(teamAssists);
                             teamarr[y].setSaves(teamSaves);
@@ -254,7 +280,7 @@ public class Parser {
         return out; // return inproperty field and counter advance
     }
 
-    private Object[] getStrProperty(int index, byte[] content) {
+    private Object[] getStrProperty(int index, byte[] content) { //TODO make this more robust - doesn't capture name correctly if garbage binary happens to be ASCII char
         index++;
         boolean strOver = false;
         boolean foundAscii = false;

@@ -27,24 +27,28 @@ public class ListenerMain extends ListenerAdapter {
         if (author.isBot()) return; // dont want to be responding to bots
 
         // !help
-        if (inMessage.getContentRaw().equals("!help")) {
+        if (inMessage.getContentRaw().equals("!stats help")) {
             channel.sendMessage("Below are the commands for this bot:\n" +
                     "\t1) !stats view <replay.replay>\n" +
-                    "\t2) !stats upload <replay.replay>\n" +
-                    "\t3) !help").queue();
+                    "\t2) ~~!stats upload <replay.replay>~~\n" +
+                    "\t3) !stats series start ###v###\n" +
+                    "\t4) !stats series end\n" +
+                    "\t5) !stats help").queue();
         }
         // !stats view <replay.replay>
         else if (inMessage.getContentRaw().startsWith("!stats view")) {
-            if(event.getMessage().getAttachments().isEmpty()) {
+            if (event.getMessage().getAttachments().isEmpty()) {
                 channel.sendMessage("Must upload .replay file").queue();
                 return;
             }
 
             Message.Attachment attachment = event.getMessage().getAttachments().get(0);
 
-                File file = new File(attachment.getFileName());
-                attachment.download(file);
 
+            File file = new File(attachment.getFileName());
+            attachment.download(file);
+
+            try {
                 Parser parser = new Parser(file);
                 Team t0 = parser.getTeam0();
                 Team t1 = parser.getTeam1();
@@ -55,28 +59,39 @@ public class ListenerMain extends ListenerAdapter {
                 Player player;
                 for (int i = 0; i < t0.getTeamSize(); i++) {
                     player = t0.getPlayers()[i];
-                    channel.sendMessage(player.getPlayerName() + "\n" +
-                            "\t\tScore: " + player.getScore() + "\n" +
-                            "\t\tGoals: " + player.getGoals() + "\n" +
-                            "\t\tAssists: " + player.getAssists() + "\n" +
-                            "\t\tSaves: " + player.getSaves() + "\n" +
-                            "\t\tShots: " + player.getShots()).queue();
+                    if (player != null) {
+                        channel.sendMessage(player.getPlayerName() + "\n" +
+                                "\t\tScore: " + player.getScore() + "\n" +
+                                "\t\tGoals: " + player.getGoals() + "\n" +
+                                "\t\tAssists: " + player.getAssists() + "\n" +
+                                "\t\tSaves: " + player.getSaves() + "\n" +
+                                "\t\tShots: " + player.getShots()).queue();
+                    }
                 }
                 channel.sendMessage("\n**Team: " + t1.getTeamName() + " - " + t1.getGoals() + "**").queue();
                 for (int i = 0; i < t1.getTeamSize(); i++) {
                     player = t1.getPlayers()[i];
-                    channel.sendMessage(player.getPlayerName() + "\n" +
-                            "\t\tScore: " + player.getScore() + "\n" +
-                            "\t\tGoals: " + player.getGoals() + "\n" +
-                            "\t\tAssists: " + player.getAssists() + "\n" +
-                            "\t\tSaves: " + player.getSaves() + "\n" +
-                            "\t\tShots: " + player.getShots()).queue();
+                    if (player != null) {
+                        channel.sendMessage(player.getPlayerName() + "\n" +
+                                "\t\tScore: " + player.getScore() + "\n" +
+                                "\t\tGoals: " + player.getGoals() + "\n" +
+                                "\t\tAssists: " + player.getAssists() + "\n" +
+                                "\t\tSaves: " + player.getSaves() + "\n" +
+                                "\t\tShots: " + player.getShots()).queue();
+                    }
                 }
+            } catch (Exception e) {
+                channel.sendMessage("_Uh oh!  Some kind of error occurred while parsing your replay!_");
+            }
 
-                file.delete();
+            file.delete();
         }
         // !stats upload
         else if (inMessage.getContentRaw().startsWith("!stats upload")) {
+
+        }
+        // !stats series start ###v###
+        else if (inMessage.getContentRaw().startsWith("!stats series start ###v###")) {
 
         }
     }

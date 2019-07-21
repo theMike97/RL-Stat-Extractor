@@ -12,12 +12,12 @@ public class Player {
 
     public Player() {
         name = null;
-        team = -1;
-        score = -1;
-        goals = -1;
-        assists = -1;
-        saves = -1;
-        shots = -1;
+        team = 0;
+        score = 0;
+        goals = 0;
+        assists = 0;
+        saves = 0;
+        shots = 0;
     }
 
     public Player(String name) {
@@ -87,6 +87,10 @@ public class Player {
 
     public int getShots() {
         return shots;
+    }
+
+    public boolean isEmpty() {
+        return name != null;
     }
 
     @Override
