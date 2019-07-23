@@ -88,22 +88,22 @@ public class Parser {
 
                     switch (lastEndedWith) {
                         case 0:
-							System.out.println("Unfair team size: " + arr[0]);
+//							System.out.println("Unfair team size: " + arr[0]);
                             break;
 
                         case 1: // teamsize
-							System.out.println("Team size: " + arr[0]);
+//							System.out.println("Team size: " + arr[0]);
                             team0 = new Team(arr[0]);
                             team1 = new Team(arr[0]);
                             break;
 
                         case 2: // team1score
-							System.out.println("Team 1 score: " + arr[0]);
+//							System.out.println("Team 1 score: " + arr[0]);
                             team1.setGoals(arr[0]);
                             break;
 
                         case 3: // team0score
-							System.out.println("Team 2 score: " + arr[0]);
+//							System.out.println("Team 2 score: " + arr[0]);
                             team0.setGoals(arr[0]);
                             break;
 
@@ -165,7 +165,7 @@ public class Parser {
                                     switch (lastEndedWith) {
                                         case 5: // name
                                             player.setPlayerName(arr[0].toString());
-											System.out.println("\nName: " + arr[0]);
+//											System.out.println("\nName: " + arr[0]);
                                             break;
                                     }
 
@@ -177,27 +177,27 @@ public class Parser {
                                     switch (lastEndedWith) {
                                         case 7: // team
                                             player.setTeam(arr[0]);
-											System.out.println("Team: " + arr[0]);
+//											System.out.println("Team: " + arr[0]);
                                             break;
                                         case 8: // score
                                             player.setScore(arr[0]);
-											System.out.println("Score: " + arr[0]);
+//											System.out.println("Score: " + arr[0]);
                                             break;
                                         case 9: // goals
                                             player.setGoals(arr[0]);
-											System.out.println("Goals: " + arr[0]);
+//											System.out.println("Goals: " + arr[0]);
                                             break;
                                         case 10: // assists
                                             player.setAssists(arr[0]);
-											System.out.println("Assists: " + arr[0]);
+//											System.out.println("Assists: " + arr[0]);
                                             break;
                                         case 11: // saves
                                             player.setSaves(arr[0]);
-											System.out.println("Saves: " + arr[0]);
+//											System.out.println("Saves: " + arr[0]);
                                             break;
                                         case 12: // shots
                                             player.setShots(arr[0]);
-											System.out.println("Shots: " + arr[0]);
+//											System.out.println("Shots: " + arr[0]);
                                             break;
 
                                     }
@@ -220,7 +220,7 @@ public class Parser {
                                 else if (player.getTeam() == 1) team1.addPlayer(player);
                                 else throw new NullPointerException("Tried to add player to a team that doesn't exist!");
                             }
-                            System.out.println(playerStatsOver);
+//                            System.out.println(playerStatsOver);
                             statsCollected = true;
 //							System.out.println(streamedStr);
                         }

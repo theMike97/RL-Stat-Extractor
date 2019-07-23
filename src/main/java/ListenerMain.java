@@ -1,3 +1,5 @@
+import entities.Game;
+import entities.Series;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -10,6 +12,7 @@ import entities.Team;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class ListenerMain extends ListenerAdapter {
 
@@ -21,9 +24,16 @@ public class ListenerMain extends ListenerAdapter {
             "SAR", "SDA", "SFK", "SEA", "UTA", "WAR"
     };
 
+    private boolean uploadingSeries;
+    private ArrayList<Message.Attachment> games;
+    private String team0;
+    private String team1;
+
     public ListenerMain() {
         super();
-
+        uploadingSeries = false;
+        games = new ArrayList<>();
+        team0 = team1 = "";
     }
 
     @Override
@@ -46,6 +56,11 @@ public class ListenerMain extends ListenerAdapter {
         }
         // !stats view <replay.replay>
         else if (command.startsWith("!stats view")) {
+            if (uploadingSeries) {
+                channel.sendMessage("_Finish uploading series (_`!stats series end`_)_").queue();
+                return;
+            }
+
             if (event.getMessage().getAttachments().isEmpty()) {
                 channel.sendMessage("Must upload .replay file").queue();
                 return;
@@ -108,8 +123,6 @@ public class ListenerMain extends ListenerAdapter {
 
         } else if (command.startsWith("!stats series start")) {
             boolean spacesExist = true;
-            String team0 = "";
-            String team1 = "";
             String args = command.substring(19) ;
             args = args.replaceAll("\\s", "");
             // check if string contains two unique team codes
@@ -137,54 +150,119 @@ public class ListenerMain extends ListenerAdapter {
 
             System.out.println(team0 + "," + team1);
 
-            boolean t0Exists= false;
-            boolean t1Exists = false;
+            boolean team0Exists= false;
+            boolean team1Exists = false;
             for (String code : TEAM_CODES) {
-                if (t0Exists) break;
-                t0Exists = team0.equals(code);
+                if (team0Exists) break;
+                team0Exists = team0.equals(code);
             }
             for (String code : TEAM_CODES) {
-                if (t1Exists) break;
-                t1Exists = team1.equals(code);
+                if (team1Exists) break;
+                team1Exists = team1.equals(code);
             }
-            if (!(t0Exists && t1Exists)) {
+            if (!(team0Exists && team1Exists)) {
                 channel.sendMessage("_Team codes are incorrect._").queue();
                 return;
             }
+            channel.sendMessage("_Upload replay files._").queue();
+            uploadingSeries = true;
 
 //            channel.sendMessage("Team 0: " + team0).queue();
 //            channel.sendMessage("Team 1: " + team1).queue();
 
-            if (event.getMessage().getAttachments().isEmpty()) {
-                channel.sendMessage("_Must upload .replay file._").queue();
+//            if (event.getMessage().getAttachments().isEmpty()) {
+//                channel.sendMessage("_Must upload .replay file._").queue();
+//                return;
+//            }
+
+
+//            Message.Attachment attachment = inMessage.getAttachments().get(0);
+//            System.out.println(inMessage.getAttachments().size());
+
+
+//            File file = new File(attachment.getFileName());
+//            attachment.download(file);
+//
+//            Parser parser = new Parser(file);
+//
+//            Team t0 = parser.getTeam0();
+//            t0.setTeamName(team0);
+//
+//            Team t1 = parser.getTeam1();
+//            t1.setTeamName(team1);
+//
+//            channel.sendMessage("**" + t0 + "**").queue();
+//            for (Player player : t0.getPlayers()) {
+//                if (player != null) channel.sendMessage("\t" + player).queue();
+//            }
+//            channel.sendMessage("**" + t1 + "**").queue();
+//            for (Player player : t1.getPlayers()) {
+//                if (player != null) channel.sendMessage("\t" + player).queue();
+//            }
+//
+//            file.delete();
+//            channel.sendMessage("\n _Done!_").queue();
+        } else if (inMessage.getContentRaw().equals("!stats series end")) {
+            if (!uploadingSeries) {
+                channel.sendMessage("_No series is being uploaded.  Maybe you meant_ `!stats series start [AAAvBBB]`_?_").queue();
+                return;
+            }
+//            System.out.println(games.size());
+            if (games.size() < 3) {
+                channel.sendMessage("_Too few replays uploaded! D:  Retry uploading the series._").queue();
+                return;
+            } else if (games.size() > 7) {
+                channel.sendMessage("_Too many replays uploaded! D:  Retry uploading the series._").queue();
                 return;
             }
 
-            Message.Attachment attachment = event.getMessage().getAttachments().get(0);
+            File file;
+            Parser parser;
+            Team t0 = null;
+            Team t1 = null;
+            Series series = new Series();
 
+            for (int i = 0; i < games.size(); i++) {
+                file = new File(games.get(i).getFileName());
+                games.get(i).download(file);
 
-            File file = new File(attachment.getFileName());
-            attachment.download(file);
+                parser = new Parser(file);
 
-            Parser parser = new Parser(file);
+                t0 = parser.getTeam0();
+                t0.setTeamName(team0);
+                t1 = parser.getTeam1();
+                t1.setTeamName(team1);
 
-            Team t0 = parser.getTeam0();
-            t0.setTeamName(team0);
+                series.addGame(new Game(t0, t1));
 
-            Team t1 = parser.getTeam1();
-            t1.setTeamName(team1);
+                channel.sendMessage("**Game " + (i+1) + "**").queue();
 
-            channel.sendMessage("**" + t0 + "**").queue();
-            for (Player player : t0.getPlayers()) {
-                if (player != null) channel.sendMessage("\t" + player).queue();
+                channel.sendMessage("**" + t0 + "**").queue();
+                for (Player player : t0.getPlayers()) {
+                    if (player != null) channel.sendMessage("\t" + player).queue();
+                }
+
+                channel.sendMessage("**" + t1 + "**").queue();
+                for (Player player : t1.getPlayers()) {
+                    if (player != null) channel.sendMessage("\t" + player).queue();
+                }
+                if (i < games.size() - 1) channel.sendMessage("---------------------").queue();
+
+                file.delete();
             }
-            channel.sendMessage("**" + t1 + "**").queue();
-            for (Player player : t1.getPlayers()) {
-                if (player != null) channel.sendMessage("\t" + player).queue();
+            try {
+//                System.out.println(series.getGames().size());
+                channel.sendMessage("**" + t0.getTeamName() + ": " + series.getTeam0Score() + "\n" + t1.getTeamName() + ": " + series.getTeam1Score() + "**").queue();
+            } catch (NullPointerException e) {
+                System.err.println("Uh oh!  No games in the attachments list!");
+                e.printStackTrace();
             }
+            uploadingSeries = false;
 
-            file.delete();
-            channel.sendMessage("\n_Done!_").queue();
+        } else {
+            if (uploadingSeries) {
+                games.add(inMessage.getAttachments().get(0));
+            }
         }
     }
 }

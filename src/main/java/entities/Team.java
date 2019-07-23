@@ -89,6 +89,23 @@ public class Team {
         return shots;
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) return false;
+        if (!(o instanceof Team)) return false;
+        // type cast
+        Team t = (Team) o;
+
+        return (t.getGoals() == goals &&
+                t.getSaves() == saves &&
+                t.getPlayers() == players &&
+                t.getAssists() == assists &&
+                t.getShots() == shots &&
+                t.getTeamName().equals(name) &&
+                t.getTeamSize() == size);
+    }
+
     @Override
     public String toString() {
         return "[ Name: " + name + ", " +
